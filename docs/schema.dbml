@@ -1,0 +1,57 @@
+Table users {
+  id integer [primary key]
+  username varchar [unique, not null]
+  name varchar [not null]
+  email varchar [unique, not null]
+  password_hash varchar [not null]
+  phone varchar
+  role enum('admin', 'investigator', 'officer', 'lab', 'guest') [not null]
+  is_active boolean [not null, default: true]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+Table cases {
+  id integer [primary key]
+  case_number varchar [unique, not null]
+  title varchar [not null]
+  description text
+  status enum('open', 'in_progress', 'closed', 'archived') [not null, default: 'open']
+  created_by integer [not null, ref: > users.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+Table case_assignments {
+  id integer [primary key]
+  case_id integer [not null, ref: > cases.id]
+  user_id integer [not null, ref: > users.id]
+  assigned_by integer [not null, ref: > users.id]
+  assigned_role enum('investigator', 'officer') [not null]
+  assigned_at timestamp [not null]
+  is_active boolean [not null, default: true]
+}
+Table evidence {
+  id integer [primary key]
+  case_id integer [not null, ref: > cases.id]
+  uploaded_by integer [not null, ref: > users.id]
+  evidence_number varchar [unique, not null]
+  file_name varchar [not null]
+  file_path varchar [not null]
+  file_type varchar
+  file_size bigint
+  sha256_hash varchar [not null]
+  description text
+  uploaded_at timestamp [not null]
+  is_verified boolean [not null, default: false]
+}
+Table audit_logs {
+  id integer [primary key]
+  user_id integer [not null, ref: > users.id]
+  case_id integer [ref: > cases.id]
+  evidence_id integer [ref: > evidence.id]
+  action varchar [not null]
+  entity_type varchar [not null]
+  entity_id integer
+  ip_address varchar
+  details text
+  created_at timestamp [not null]
+}
