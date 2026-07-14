@@ -14,5 +14,4 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
     List<AuditLog> findByUser(User user);
     List<AuditLog> findByCaseEntity(Case caseEntity);
     List<AuditLog> findByEvidence(Evidence evidence);
-    List<AuditLog> findByEntityType(String entityType);
 }

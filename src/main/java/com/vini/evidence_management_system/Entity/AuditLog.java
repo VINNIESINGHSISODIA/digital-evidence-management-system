@@ -35,11 +35,6 @@ public class AuditLog {
     @Column(nullable = false)
     private String action;
 
-    @Column(nullable = false)
-    private String entityType;
-
-    private Integer entityId;
-
     private String ipAddress;
 
     @Column(columnDefinition = "TEXT")
