@@ -38,7 +38,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7);
-
+        System.out.println("TOKEN: " + token);
+        System.out.println("IS VALID: " + jwtUtil.isTokenValid(token));
         if (!jwtUtil.isTokenValid(token)) {
             filterChain.doFilter(request, response);
             return;
@@ -52,7 +53,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             if (user != null && user.getIsActive()) {
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
-                                user, null, List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
+                                user.getUsername(), null, List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
                         );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
