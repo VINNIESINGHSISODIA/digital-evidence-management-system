@@ -1,7 +1,6 @@
 package com.vini.evidence_management_system.Controller;
 
 import com.vini.evidence_management_system.Dto.AuditLogResponse;
-import com.vini.evidence_management_system.Entity.AuditLog;
 import com.vini.evidence_management_system.Service.AuditLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
