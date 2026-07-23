@@ -9,6 +9,7 @@ import com.vini.evidence_management_system.Repository.AuditLogRepository;
 import com.vini.evidence_management_system.Repository.CaseRepository;
 import com.vini.evidence_management_system.Repository.EvidenceRepository;
 import com.vini.evidence_management_system.Repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ public class EvidenceService {
     private final CaseRepository caseRepository;
     private final UserRepository userRepository;
     private final AuditLogRepository auditLogRepository;
+    private final HttpServletRequest request;
 
     @Value("${file.upload.dir}")
     private String uploadDir;
@@ -74,7 +76,7 @@ public class EvidenceService {
                 .caseEntity(caseEntity)
                 .evidence(evidence)
                 .action("EVIDENCE_UPLOADED")
-                .ipAddress(null)
+                .ipAddress(getClientIP())
                 .details("File: " + file.getOriginalFilename())
                 .build());
 
@@ -110,6 +112,7 @@ public class EvidenceService {
                 .caseEntity(evidence.getCaseEntity())
                 .evidence(evidence)
                 .action("EVIDENCE_VIEWED")
+                .ipAddress(getClientIP())
                 .details("Viewed file: " + evidence.getFileName())
                 .build());
 
@@ -127,6 +130,7 @@ public class EvidenceService {
                 .caseEntity(evidence.getCaseEntity())
                 .evidence(evidence)
                 .action("EVIDENCE_DOWNLOADED")
+                .ipAddress(getClientIP())
                 .details("Downloaded file: " + evidence.getFileName())
                 .build());
 
@@ -164,7 +168,13 @@ public class EvidenceService {
         }
         return hexString.toString();
     }
-
+    private String getClientIP() {
+        String xForwardedFor = request.getHeader("X-Forwarded-For");
+        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+            return xForwardedFor.split(",")[0];
+        }
+        return request.getRemoteAddr();
+    }
     private EvidenceResponse mapToResponse(Evidence e) {
         return EvidenceResponse.builder()
                 .id(e.getId())
