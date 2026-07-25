@@ -7,6 +7,8 @@ import com.vini.evidence_management_system.Entity.User;
 import com.vini.evidence_management_system.Repository.CaseRepository;
 import com.vini.evidence_management_system.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +20,7 @@ public class CaseService {
     private final CaseRepository caseRepository;
     private final UserRepository userRepository;
 
+    @CacheEvict(value = "cases", allEntries = true)
     public CaseResponse createCase(CaseRequest request, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -36,7 +39,7 @@ public class CaseService {
 
         return mapToResponse(newCase);
     }
-
+    @Cacheable("cases")
     public List<CaseResponse> getAllCases() {
         return caseRepository.findAll()
                 .stream()
@@ -44,12 +47,14 @@ public class CaseService {
                 .toList();
     }
 
+    @Cacheable(value = "cases", key = "#id")
     public CaseResponse getCaseById(Long id) {
         Case c = caseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Case not found"));
         return mapToResponse(c);
     }
 
+    @CacheEvict(value = "cases", allEntries = true)
     public CaseResponse updateCase(Long id, CaseRequest request, String username) {
         Case c = caseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Case not found"));
