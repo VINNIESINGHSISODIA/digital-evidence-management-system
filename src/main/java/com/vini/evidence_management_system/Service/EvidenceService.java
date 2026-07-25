@@ -9,6 +9,7 @@ import com.vini.evidence_management_system.Repository.AuditLogRepository;
 import com.vini.evidence_management_system.Repository.CaseRepository;
 import com.vini.evidence_management_system.Repository.EvidenceRepository;
 import com.vini.evidence_management_system.Repository.UserRepository;
+import com.vini.evidence_management_system.security.AESUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +31,7 @@ public class EvidenceService {
     private final UserRepository userRepository;
     private final AuditLogRepository auditLogRepository;
     private final HttpServletRequest request;
+    private final AESUtil aesUtil;
 
     @Value("${file.upload.dir}")
     private String uploadDir;
@@ -53,7 +55,8 @@ public class EvidenceService {
             Files.createDirectories(uploadPath);
         }
         Path filePath = uploadPath.resolve(fileName);
-        Files.write(filePath, file.getBytes());
+        byte[] encryptedBytes = aesUtil.encrypt(file.getBytes());
+        Files.write(filePath, encryptedBytes);
 
         Evidence evidence = Evidence.builder()
                 .caseEntity(caseEntity)
@@ -116,7 +119,8 @@ public class EvidenceService {
                 .details("Viewed file: " + evidence.getFileName())
                 .build());
 
-        return Files.readAllBytes(Paths.get(evidence.getFilePath()));
+        byte[] encryptedBytes = Files.readAllBytes(Paths.get(evidence.getFilePath()));
+        return aesUtil.decrypt(encryptedBytes);
     }
 
     public byte[] downloadEvidence(Long id, String username) throws Exception {
@@ -134,7 +138,8 @@ public class EvidenceService {
                 .details("Downloaded file: " + evidence.getFileName())
                 .build());
 
-        return Files.readAllBytes(Paths.get(evidence.getFilePath()));
+        byte[] encryptedBytes = Files.readAllBytes(Paths.get(evidence.getFilePath()));
+        return aesUtil.decrypt(encryptedBytes);
     }
 
     public EvidenceResponse verifyEvidence(Long id) throws Exception {
