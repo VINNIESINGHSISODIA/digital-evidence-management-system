@@ -1,5 +1,6 @@
 package com.vini.evidence_management_system.security;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.Cipher;
@@ -8,7 +9,7 @@ import javax.crypto.spec.SecretKeySpec;
 @Component
 public class AESUtil {
 
-    @org.springframework.beans.factory.annotation.Value("${aes.key}")
+    @Value("${aes.key}")
     private String aesKey;
 
     private SecretKeySpec getSecretKey() {
