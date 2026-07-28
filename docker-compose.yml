@@ -1,0 +1,40 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: evidence-postgres
+    environment:
+      POSTGRES_DB: evidence_db
+      POSTGRES_USER: vini
+      POSTGRES_PASSWORD: ""
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    container_name: evidence-redis
+    ports:
+      - "6379:6379"
+
+  app:
+    build: .
+    container_name: evidence-app
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/evidence_db
+      DB_USERNAME: vini
+      DB_PASSWORD:
+      JWT_SECRET: your_super_secret_key_must_be_at_least_32_characters_long
+      JWT_EXPIRATION: 86400000
+      AES_KEY: MySecretKey12345MySecretKey12345
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres-data:
